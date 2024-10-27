@@ -1,20 +1,21 @@
-version: '3.8'
-
+version: '3'
 services:
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:80" # Map port 3000 on localhost to port 80 in the container
-    stdin_open: true
-    tty: true
-
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./backend/Dockerfile
     ports:
-      - "5000:5000" # Map port 5000 on localhost to port 5000 in the container
-    stdin_open: true
-    tty: true
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - frontend
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend/public:/usr/share/nginx/html  # Ensure it points to the correct path
