@@ -1,65 +1,34 @@
-# from flask import Flask, jsonify, request
-# from flask_cors import CORS
-# import pandas as pd
-# from sklearn.linear_model import LogisticRegression
-# from sklearn.model_selection import train_test_split
-
-# app = Flask(__name__)
-# CORS(app)
-
-# # Load the trained model
-# file_path = 'D:/Campus/ICBT_COMPUTER/FINAL_PROJECT/Diabetes Prediction using machine learning-FINAL PROJECT/Project/diabetes.csv'
-# diabetes_data = pd.read_csv(file_path)
-# X = diabetes_data.drop(columns='Outcome', axis=1)
-# Y = diabetes_data['Outcome']
-# X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, stratify=Y, random_state=2)
-# model = LogisticRegression()
-# model.fit(X_train, Y_train)
-
-# @app.route('/', methods=['POST'])
-# def get_data():
-#     req_data = request.get_json()
-#     data = {
-#         'Pregnancies': [req_data['Pregnancies']],
-#         'Glucose': [req_data['Glucose']],
-#         'BloodPressure': [req_data['BloodPressure']],
-#         'SkinThickness': [req_data['SkinThickness']],
-#         'Insulin': [req_data['Insulin']],
-#         'BMI': [req_data['BMI']],
-#         'DiabetesPedigreeFunction': [req_data['DiabetesPedigreeFunction']],
-#         'Age': [req_data['Age']]
-#     }
-#     # Make predictions
-#     prediction_result = model.predict(pd.DataFrame(data))
-    
-#     # Convert prediction result to list for jsonify
-#     #prediction_list = prediction_result.tolist()
-    
-#     # Return prediction result
-#     return jsonify({'prediction': prediction_result.tolist()})
-
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0', port=5000, debug=True)
-
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+import os
 
 app = Flask(__name__)
 CORS(app)
 
-file_path = 'D:/Campus/ICBT_COMPUTER/FINAL_PROJECT/Diabetes Prediction using machine learning-FINAL PROJECT/Project/diabetes.csv'
+# Use a relative path for the CSV file inside the container
+file_path = './diabetes.csv'
+
+# Load the CSV data
 diabetes_data = pd.read_csv(file_path)
+
+# Prepare the data for training
 X = diabetes_data.drop(columns='Outcome', axis=1)
 Y = diabetes_data['Outcome']
+
+# Split the data
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, stratify=Y, random_state=2)
+
+# Initialize the Logistic Regression model
 model = LogisticRegression(max_iter=1000)  # Increase the number of iterations
 model.fit(X_train, Y_train)
 
+# Route for predicting diabetes
 @app.route('/api/predict', methods=['POST'])
 def predict_diabetes():
+    # Get the JSON request data
     req_data = request.json
     pregnancies = req_data['pregnancies']
     glucose = req_data['glucose']
@@ -70,6 +39,7 @@ def predict_diabetes():
     diabetes_pedigree_function = req_data['diabetesPedigreeFunction']
     age = req_data['age']
     
+    # Create a DataFrame from the input data
     user_data = pd.DataFrame({
         'Pregnancies': [pregnancies],
         'Glucose': [glucose],
@@ -81,20 +51,12 @@ def predict_diabetes():
         'Age': [age]
     })
     
+    # Predict the outcome using the trained model
     prediction_result = model.predict(user_data)
-    
-    # Convert int64 prediction_result to Python integer
-    prediction_result = int(prediction_result[0])
-    
-# @app.route('/api/data', methods=['GET'])
-# def get_data():
-#     data={
 
-#         "prediction_result":"hiii"
-#     }
-    return jsonify(prediction_result)
+    # Return the prediction as a JSON response
+    return jsonify(prediction_result.tolist())
 
-   
-
+# Main block to run the app
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
