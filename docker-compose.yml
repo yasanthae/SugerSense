@@ -2,20 +2,30 @@ version: '3'
 services:
   backend:
     build:
-      context: .
-      dockerfile: ./backend/Dockerfile
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
       - "5000:5000"
     volumes:
       - ./backend:/app
     depends_on:
       - frontend
+      - login
 
   frontend:
     build:
-      context: .
-      dockerfile: ./frontend/Dockerfile
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "8080:80"
     volumes:
-      - ./frontend/public:/usr/share/nginx/html  # Ensure it points to the correct path
+      - ./frontend/public:/usr/share/nginx/html
+
+  login:
+    build:
+      context: ./login
+      dockerfile: Dockerfile
+    ports:
+      - "8081:80"
+    volumes:
+      - ./login:/usr/share/nginx/html
