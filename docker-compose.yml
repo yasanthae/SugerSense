@@ -24,7 +24,7 @@ services:
       - ./backend:/app
     depends_on:
       - frontend
-      - login
+      - worker
     networks:
       - traefik-network
     labels:
@@ -65,7 +65,7 @@ services:
       - "traefik.http.middlewares.login-strip.stripprefix.prefixes=/login"
       - "traefik.http.routers.login.middlewares=login-strip"
       # Middleware to block access not coming through the frontend
-      - "traefik.http.middlewares.login-access.headers.customrequestheaders.Referer=https://sugersense.com/"
+      - "traefik.http.middlewares.login-access.headers.customrequestheaders.Referer=https://sugersense.com/" #remove http's'
       - "traefik.http.routers.login.middlewares=login-strip,login-access"
       - "traefik.http.services.login.loadbalancer.server.port=80"
 
@@ -83,6 +83,23 @@ services:
       - "traefik.http.middlewares.worker-strip.stripprefix.prefixes=/worker"
       - "traefik.http.routers.worker.middlewares=worker-strip"
       - "traefik.http.services.worker.loadbalancer.server.port=80"
+
+  appointments:
+    build:
+      context: ./appointments
+      dockerfile: Dockerfile
+    volumes:
+      - ./appointments:/var/www/html
+    networks:
+      - traefik-network
+    labels:
+      - "traefik.enable=true"
+      # Route only when Host is sugersense.com and the path starts with /appointments
+      - "traefik.http.routers.appointments.rule=Host(`sugersense.com`) && PathPrefix(`/appointments`)"
+      # Middleware to strip the /appointments prefix before routing
+      - "traefik.http.middlewares.appointments-strip.stripprefix.prefixes=/appointments"
+      - "traefik.http.routers.appointments.middlewares=appointments-strip"
+      - "traefik.http.services.appointments.loadbalancer.server.port=80"
 
   db:
     image: mysql:8.0
