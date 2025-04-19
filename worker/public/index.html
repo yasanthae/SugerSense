@@ -40,7 +40,7 @@
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"> </span></button>
           <div class="collapse navbar-collapse border-top border-lg-0 mt-4 mt-lg-0" id="navbarSupportedContent">
             <ul class="navbar-nav ms-auto pt-2 pt-lg-0 font-base">
-              <li class="nav-item px-2"><a class="nav-link" aria-current="page" href="#about">About Us</a></li>
+              <li class="nav-item px-2"><a class="nav-link" aria-current="page" href="http://sugersense.com/">Go to Main Site</a></li>
               <!-- <li class="nav-item px-2"><a class="nav-link" href="#departments">Departments</a></li> -->
               <!-- <li class="nav-item px-2"><a class="nav-link" href="#findUs">Membership</a></li> -->
               <!-- <li class="nav-item px-2"><a class="nav-link" href="#help">Help </a></li>
@@ -162,10 +162,22 @@
           const result = await response.json();
 
           // Display result
-          document.getElementById('predictionResult').innerHTML =
-            `<div class="alert alert-info">
-              <strong>Prediction Result:</strong> ${result < 1 ? 'This person is not at risk of diabetes.' : 'This person is at risk of diabetes.'}
-            </div>`;
+          // document.getElementById('predictionResult').innerHTML =
+          //   `<div class="alert alert-info">
+          //     <strong>Prediction Result:</strong> ${result < 1 ? 'This person is not at risk of diabetes.' : 'This person is at risk of diabetes.'}
+          //   </div>`;
+          // Display result
+          let message = result < 1 ? 'This person is not at risk of diabetes.' : 'This person is at risk of diabetes.';
+          let messageClass = result < 1 ? 'alert-info' : 'alert-danger'; // Set the message color class (red for danger)
+          let buttonHTML = result >= 1 ? '<a href="http://sugersense.com/appointments" target="_blank"><button class="btn btn-danger">Get Help</button></a>' : '';
+
+
+          document.getElementById('predictionResult').innerHTML = `
+            <div class="alert ${messageClass}">
+              <strong>Prediction Result:</strong> ${message}
+            </div>
+            ${buttonHTML}
+          `;
         } catch (error) {
           console.error('Error:', error);
           document.getElementById('predictionResult').innerHTML =

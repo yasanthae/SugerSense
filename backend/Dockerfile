@@ -6,7 +6,7 @@ FROM python:3.9
 WORKDIR /app
 
 # Copy the backend files, including the CSV file, into the container
-COPY ./backend /app
+COPY . /app
 
 # Install required Python packages
 RUN pip install -r requirements.txt

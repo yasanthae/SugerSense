@@ -1,19 +1,31 @@
 # Use an official PHP image as the base image
 FROM php:7.4-apache
 
-# Install PHP extensions required for your project (if needed)
-RUN docker-php-ext-install mysqli pdo pdo_mysql
+# Install PHP extensions and packages required for your project
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
+    zip \
+    curl \
+    && docker-php-ext-install mysqli pdo pdo_mysql zip
 
-# Enable Apache mod_rewrite for URL rewriting (if necessary)
+# Enable Apache mod_rewrite for URL rewriting
 RUN a2enmod rewrite
 
 # Set the working directory inside the container
 WORKDIR /var/www/html
 
-# Copy the project files into the container, including the CSS folder
+# Copy the project files into the container
 COPY . /var/www/html/
 
-# Set the correct permissions (if needed)
+# Create PHPMailer directory if it doesn't exist
+RUN mkdir -p /var/www/html/PHPMailer
+
+# Download PHPMailer files directly
+RUN curl -o /var/www/html/PHPMailer/PHPMailer.php https://raw.githubusercontent.com/PHPMailer/PHPMailer/master/src/PHPMailer.php \
+    && curl -o /var/www/html/PHPMailer/SMTP.php https://raw.githubusercontent.com/PHPMailer/PHPMailer/master/src/SMTP.php \
+    && curl -o /var/www/html/PHPMailer/Exception.php https://raw.githubusercontent.com/PHPMailer/PHPMailer/master/src/Exception.php
+
+# Set the correct permissions
 RUN chown -R www-data:www-data /var/www/html
 
 # Expose the port Apache is running on
